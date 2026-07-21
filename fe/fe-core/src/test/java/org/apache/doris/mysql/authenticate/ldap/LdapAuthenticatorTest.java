@@ -132,6 +132,15 @@ public class LdapAuthenticatorTest {
     }
 
     @Test
+    public void testCanDealFallsBackWhenLdapManagerThrows() {
+        Mockito.when(ldapManager.doesUserExist(Mockito.anyString()))
+                .thenThrow(new RuntimeException("ldap server unreachable"));
+        Assert.assertFalse(ldapAuthenticator.canDeal(Auth.ROOT_USER));
+        Assert.assertFalse(ldapAuthenticator.canDeal(Auth.ADMIN_USER));
+        Assert.assertFalse(ldapAuthenticator.canDeal("local_user"));
+    }
+
+    @Test
     public void testGetPasswordResolver() {
         Assert.assertTrue(ldapAuthenticator.getPasswordResolver() instanceof ClearPasswordResolver);
     }

@@ -94,6 +94,16 @@ public class LdapManagerTest {
     }
 
     @Test
+    public void testGetUserInfoReturnsNullWhenLdapClientThrows() {
+        LdapManager ldapManager = new LdapManager();
+        Deencapsulation.setField(ldapManager, "ldapClient", ldapClient);
+        Mockito.when(ldapClient.doesUserExist(Mockito.anyString()))
+                .thenThrow(new RuntimeException("ldap server unreachable"));
+        Assert.assertNull(ldapManager.getUserInfo(USER1));
+        Assert.assertFalse(ldapManager.doesUserExist(USER1));
+    }
+
+    @Test
     public void testCheckUserPasswd() {
         LdapManager ldapManager = new LdapManager();
         Deencapsulation.setField(ldapManager, "ldapClient", ldapClient);

@@ -276,14 +276,18 @@ public class LdapClient {
             }
             return result;
         } catch (Exception e) {
+            // Keep base DN, LDAP host and JNDI details out of the thrown message:
+            // it may reach unauthenticated clients via /rest/v1/login HTTP 500.
             long elapsed = System.currentTimeMillis() - start;
-            String msg
-                    = "Failed to retrieve the user's Distinguished Name (DN),"
-                    + "This may be due to incorrect LDAP configuration or an unset/incorrect LDAP admin password.";
-            LOG.warn("LdapClient.getDn failed: base={}, elapsed={}ms, error={}",
-                    query.base(), elapsed, e.getMessage(), e);
+            LOG.warn("LdapClient.getDn failed: base={}, elapsed={}ms", query.base(), elapsed, e);
             ErrorReport.report(ErrorCode.ERROR_LDAP_CONFIGURATION_ERR);
-            throw new RuntimeException(msg);
+            throw new RuntimeException(
+                    "Failed to retrieve the user's Distinguished Name (DN); LDAP client threw "
+                            + e.getClass().getSimpleName()
+                            + ". See fe.log for details. Common causes: LDAP server unreachable, "
+                            + "TLS/certificate failure, incorrect ldap_host/ldap_port, "
+                            + "or an unset/incorrect LDAP admin password.",
+                    e);
         }
     }
 

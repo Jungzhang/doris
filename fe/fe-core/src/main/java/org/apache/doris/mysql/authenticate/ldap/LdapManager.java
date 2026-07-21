@@ -99,7 +99,7 @@ public class LdapManager {
                         fullName, elapsed);
             }
             return result;
-        } catch (DdlException e) {
+        } catch (DdlException | RuntimeException e) {
             long elapsed = System.currentTimeMillis() - start;
             LOG.warn("LdapManager.getUserInfo failed: user={}, elapsed={}ms",
                     fullName, elapsed, e);

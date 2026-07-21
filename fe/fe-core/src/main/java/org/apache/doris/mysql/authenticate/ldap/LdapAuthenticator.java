@@ -83,7 +83,14 @@ public class LdapAuthenticator implements Authenticator {
             return false;
         }
         long start = System.currentTimeMillis();
-        boolean result = Env.getCurrentEnv().getAuth().getLdapManager().doesUserExist(qualifiedUser);
+        boolean result;
+        try {
+            result = Env.getCurrentEnv().getAuth().getLdapManager().doesUserExist(qualifiedUser);
+        } catch (RuntimeException e) {
+            LOG.warn("LdapAuthenticator.canDeal failed, fall back to default authenticator: user={}",
+                    qualifiedUser, e);
+            return false;
+        }
         long elapsed = System.currentTimeMillis() - start;
         if (LOG.isDebugEnabled()) {
             LOG.debug("LdapAuthenticator.canDeal: user={}, result={}, elapsed={}ms",
